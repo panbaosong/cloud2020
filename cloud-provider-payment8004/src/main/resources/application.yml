@@ -6,4 +6,4 @@ spring:
   cloud:
     zookeeper:
       connect-string: 192.168.3.222:2181
-#注册进zookeeper中的节点是临时节点 当微服务停掉  zookeeper对应的服务节点 会清除
+#注册进zookeeper中的节点是临时节点 当微服务停掉  zookeeper对应的服务节 6点 会清除
