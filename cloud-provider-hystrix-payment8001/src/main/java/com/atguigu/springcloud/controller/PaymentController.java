@@ -31,6 +31,16 @@ public class PaymentController {
         log.info("*******result:"+result);
         return result;
     }
+
+    //===服务熔断 当 id为正数  服务正常  当id位负数  服务降级
+    //服务熔断  熔断打开--熔断半开--熔断关闭
+    @GetMapping("/payment/circuit/{id}")
+    public String paymentCircuitBreaker(@PathVariable("id") Integer id){
+        String result = paymentService.paymentCircuitBreaker(id);
+        log.info("*******result:"+result);
+        return result;
+    }
+
 }
 
 

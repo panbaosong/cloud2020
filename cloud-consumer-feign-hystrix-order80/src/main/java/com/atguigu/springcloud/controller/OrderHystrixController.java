@@ -1,6 +1,7 @@
 package com.atguigu.springcloud.controller;
 
 import com.atguigu.springcloud.service.PaymentHystrixService;
+import com.netflix.hystrix.contrib.javanica.annotation.DefaultProperties;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import javax.annotation.Resource;
 
 @RestController
 @Slf4j
+@DefaultProperties(defaultFallback = "payment_Global_FallbackMethod")//全局的fallback降级方法
 public class OrderHystrixController {
 
     @Resource
@@ -29,7 +31,7 @@ public class OrderHystrixController {
     }
 
 
-    @HystrixCommand(fallbackMethod = "paymentTimeOutFallbackMethod",commandProperties = {
+    @HystrixCommand(fallbackMethod = "paymentTimeOutFallbackMethod",commandProperties = { //找到对应的fallback方法
             @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds",value = "1500")  //3秒钟以内就是正常的业务逻辑
     })
     @GetMapping("/consumer/payment/hystrix/timeout/{id}")
@@ -39,9 +41,24 @@ public class OrderHystrixController {
         return result;
     }
 
+//    @HystrixCommand(fallbackMethod = "paymentTimeOutFallbackMethod",commandProperties = { //找到对应的fallback方法
+//            @HystrixProperty(name = "execution.isolation.thread.timeoutInMilliseconds",value = "1500")  //3秒钟以内就是正常的业务逻辑
+//    })
+    @HystrixCommand //找到class类上DefaultProperties对应的全局fallback方法
+    @GetMapping("/consumer/payment/hystrix/timeout2/{id}")
+    public String paymentInfo_TimeOut2(@PathVariable("id") Integer id){
+        int age = 10/0;
+        String result = paymentHystrixService.paymentInfo_TimeOut(id);
+        log.info("*******result:"+result);
+        return result;
+    }
+
     //兜底方法
     public String paymentTimeOutFallbackMethod(@PathVariable("id") Integer id){
         return "我是消费者80，对付支付系统繁忙请10秒钟后再试或者自己运行出错请检查自己,(┬＿┬)";
     }
-
+    //下面是全局fallback方法
+    public String payment_Global_FallbackMethod(){
+        return "Global异常处理信息，请稍后再试,(┬＿┬)";
+    }
 }
